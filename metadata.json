@@ -1,0 +1,8 @@
+{
+  "name": "Remix: voting machine ",
+  "description": "A highly realistic and polished Electronic Voting Machine (EVM) simulation for school and college student elections, featuring voting controls, electronic beep sounds, and an admin results dashboard.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

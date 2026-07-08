@@ -1,0 +1,61 @@
+{
+  "entities": {
+    "ElectionConfig": {
+      "title": "ElectionConfig",
+      "description": "Global configuration for the election system",
+      "type": "object",
+      "properties": {
+        "isPollStarted": { "type": "boolean" },
+        "isPollClosed": { "type": "boolean" },
+        "pollingStationName": { "type": "string" },
+        "adminPin": { "type": "string" },
+        "institutionSubtitle": { "type": "string" },
+        "institutionTitle": { "type": "string" },
+        "institutionLogo": { "type": "string" },
+        "footerLogo": { "type": "string" },
+        "schoolName": { "type": "string" },
+        "developerName": { "type": "string" },
+        "developerSubtitle": { "type": "string" },
+        "academicYear": { "type": "string" },
+        "candidates": {
+          "type": "array"
+        }
+      }
+    },
+    "ElectionVotes": {
+      "title": "ElectionVotes",
+      "description": "Global record of votes cast (Legacy array-based, keeping for fallback)",
+      "type": "object",
+      "properties": {
+        "votes": {
+          "type": "array"
+        }
+      }
+    },
+    "VoteRecord": {
+      "title": "VoteRecord",
+      "description": "An individual vote record for a category cast by a voter",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "candidateId": { "type": "string" },
+        "timestamp": { "type": "string" },
+        "voterIndex": { "type": "number" }
+      }
+    }
+  },
+  "firestore": {
+    "/elections/global_config": {
+      "schema": "ElectionConfig",
+      "description": "The global configuration document"
+    },
+    "/elections/global_votes": {
+      "schema": "ElectionVotes",
+      "description": "The global votes document"
+    },
+    "/votes/{voteId}": {
+      "schema": "VoteRecord",
+      "description": "Individual vote records for real-time synchronization on multiple systems without overwrite race conditions"
+    }
+  }
+}
