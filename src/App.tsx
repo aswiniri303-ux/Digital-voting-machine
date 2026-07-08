@@ -404,7 +404,8 @@ export default function App() {
     playEVMBeep();
 
     // Append all session votes to permanent store
-    const nextVoterIndex = votes.length > 0 ? Math.max(...votes.map(v => v.voterIndex)) + 1 : 1;
+    // Assign a globally unique voter index using a precise timestamp and random number to support simultaneous multi-system voting without index conflicts
+    const nextVoterIndex = Date.now() * 1000 + Math.floor(Math.random() * 1000);
     const newRecords: VoteRecord[] = Object.values(voterSessionVotes).map((candId, idx) => ({
       id: `vt-${Math.random().toString(36).substring(2, 11)}-${idx}`,
       candidateId: candId as string,
@@ -994,7 +995,7 @@ export default function App() {
                               <div key={cand.id} className="flex items-center justify-between gap-4 py-2 border-b border-neutral-50 last:border-0">
                                 <div className="flex items-center gap-3.5 min-w-0">
                                   <span className="text-neutral-400 font-mono font-bold w-5 text-sm">{idx + 1}.</span>
-                                  <div className="w-14 h-14 shrink-0 bg-white border-2 border-neutral-200 rounded-xl flex items-center justify-center text-3xl shadow-md overflow-hidden p-1">
+                                  <div className="w-20 h-20 shrink-0 bg-white border-2 border-neutral-200 rounded-2xl flex items-center justify-center text-5xl shadow-md overflow-hidden p-1">
                                     {cand.symbol && cand.symbol.startsWith("data:") ? (
                                       <img src={cand.symbol} alt="Symbol" className="w-full h-full object-contain scale-105" referrerPolicy="no-referrer" />
                                     ) : (

@@ -1,8 +1,58 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    // Helper functions
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isValidConfig(data) {
+      return data.keys().hasAll(['isPollStarted', 'isPollClosed', 'pollingStationName', 'adminPin', 'institutionSubtitle', 'institutionTitle', 'institutionLogo', 'footerLogo', 'schoolName', 'developerName', 'developerSubtitle', 'academicYear', 'candidates'])
+        && data.keys().size() == 13
+        && data.isPollStarted is bool
+        && data.isPollClosed is bool
+        && data.pollingStationName is string && data.pollingStationName.size() <= 200
+        && data.adminPin is string && data.adminPin.size() >= 4 && data.adminPin.size() <= 64
+        && data.institutionSubtitle is string && data.institutionSubtitle.size() <= 200
+        && data.institutionTitle is string && data.institutionTitle.size() <= 200
+        && data.institutionLogo is string && data.institutionLogo.size() <= 100000
+        && data.footerLogo is string && data.footerLogo.size() <= 100000
+        && data.schoolName is string && data.schoolName.size() <= 200
+        && data.developerName is string && data.developerName.size() <= 200
+        && data.developerSubtitle is string && data.developerSubtitle.size() <= 200
+        && data.academicYear is string && data.academicYear.size() <= 50
+        && data.candidates is list;
+    }
+
+    function isValidVote(data) {
+      return data.keys().hasAll(['id', 'candidateId', 'timestamp', 'voterIndex'])
+        && data.keys().size() == 4
+        && data.id is string && data.id.size() <= 128 && data.id.matches('^[a-zA-Z0-9_\\-]+$')
+        && data.candidateId is string && data.candidateId.size() <= 128 && data.candidateId.matches('^[a-zA-Z0-9_\\-]+$')
+        && data.timestamp is string && data.timestamp.size() >= 10 && data.timestamp.size() <= 50
+        && (data.voterIndex is int || data.voterIndex is float) && data.voterIndex >= 0;
+    }
+
+    // Default deny catch-all safety net
     match /{document=**} {
-      allow read, write: if true;
+      allow read, write: if false;
+    }
+
+    // Elections configurations
+    match /elections/{docId} {
+      allow read: if true;
+      allow create, update: if (docId == 'global_config' && isValidConfig(request.resource.data))
+                            || (docId == 'global_votes' && request.resource.data.votes is list);
+      allow delete: if false;
+    }
+
+    // Individual votes collection
+    match /votes/{voteId} {
+      allow read: if true;
+      allow create: if isValidId(voteId) && isValidVote(request.resource.data) && request.resource.data.id == voteId;
+      allow update: if false;
+      allow delete: if true; // Allowed for reset and candidates deletes
     }
   }
 }
